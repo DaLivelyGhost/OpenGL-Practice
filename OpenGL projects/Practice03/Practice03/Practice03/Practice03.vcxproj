@@ -144,13 +144,18 @@
   <ItemGroup>
     <ClCompile Include="glad.c" />
     <ClCompile Include="Practice03.cpp" />
+    <ClCompile Include="STB_Image_Implementation.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Shader.h" />
+    <ClInclude Include="stb_image.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="_fragmentShader.fs" />
     <None Include="_vertexShader.vs" />
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="incoming.jpg" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

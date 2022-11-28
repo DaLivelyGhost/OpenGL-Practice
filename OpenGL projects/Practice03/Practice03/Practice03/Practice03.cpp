@@ -2,6 +2,7 @@
 #include <GLFW/glfw3.h>
 #include <iostream>
 #include "Shader.h"
+#include "stb_image.h"
 
 //----input forward declaration
 void processInput(GLFWwindow* window);
@@ -45,16 +46,19 @@ int main() {
 
     //----Create the rectangle's vertices
     float vertices[] = {
-        //position            //color
-          0.5f,  0.5f, 0.0f, 1.0f, 0.0f, 0.0f, // top right
-          0.5f, -0.5f, 0.0f, 0.0f, 1.0f, 0.0f, // bottom right
-         -0.5f, -0.5f, 0.0f, 0.0f, 0.0f, 1.0f, // bottom left
-         -0.5f,  0.5f, 0.0f, 0.5f, 0.5f, 0.5f// top left 
+        // positions          // colors           // texture coords
+         0.5f,  0.5f, 0.0f,   1.0f, 0.0f, 0.0f,   1.0f, 1.0f,   // top right
+         0.5f, -0.5f, 0.0f,   0.0f, 1.0f, 0.0f,   1.0f, 0.0f,   // bottom right
+        -0.5f, -0.5f, 0.0f,   0.0f, 0.0f, 1.0f,   0.0f, 0.0f,   // bottom left
+        -0.5f,  0.5f, 0.0f,   1.0f, 1.0f, 0.0f,   0.0f, 1.0f    // top left 
     };
     unsigned int indices[] = {  // note that we start from 0!
         0, 1, 3,   // first triangle
         1, 2, 3    // second triangle
     };
+
+
+
 
     unsigned int VBO, VAO, EBO;
 
@@ -64,7 +68,6 @@ int main() {
     glGenVertexArrays(1, &VAO);
     //----Create the element buffer object
     glGenBuffers(1, &EBO);
-
 
 
     //----Bind the vertex array object first, then bind and set vertex buffers, then configure vertex attributes
@@ -79,12 +82,51 @@ int main() {
     glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
 
     //----Define the vertex position
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)0);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)0);
     glEnableVertexAttribArray(0);
 
     //----Define the vertex color
-    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)(3 * sizeof(float)));
+    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(3 * sizeof(float)));
     glEnableVertexAttribArray(1);
+
+    //----Define the vertex texture position
+    glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(6 * sizeof(float)));
+    glEnableVertexAttribArray(2);
+
+    
+    
+    unsigned int texture;
+
+    //----Create the texture object
+    glGenTextures(1, &texture);
+
+    glBindTexture(GL_TEXTURE_2D, texture);
+
+    //----Set the texture coordinate behavior
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_MIRRORED_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_MIRRORED_REPEAT);
+
+    //----Set texture scaling behavior
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+    //----Load the image for the texture
+    int width, height, nrChannels;
+
+    stbi_set_flip_vertically_on_load(true);
+    unsigned char* data = stbi_load("incoming.jpg", &width, &height, &nrChannels, 0);
+    
+    
+    if (data) {
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
+        glGenerateMipmap(GL_TEXTURE_2D);
+    }
+    else {
+        std::cout << "Failed to load texture" << std::endl;
+    }
+
+    //----free the memory held by the image
+    stbi_image_free(data);
 
     //----MAIN RENDER LOOP
     while (!glfwWindowShouldClose(window))
@@ -99,6 +141,8 @@ int main() {
         practice03Shader.use();
         glBindVertexArray(VAO);
 
+        glBindTexture(GL_TEXTURE_2D, texture);
+       
         glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
         glBindVertexArray(0);
 
