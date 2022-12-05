@@ -95,12 +95,13 @@ int main() {
 
     
     
-    unsigned int texture;
+    unsigned int texture1, texture2;
 
+    //--------TEXTURE 1-----------------------------------------
     //----Create the texture object
-    glGenTextures(1, &texture);
+    glGenTextures(1, &texture1);
 
-    glBindTexture(GL_TEXTURE_2D, texture);
+    glBindTexture(GL_TEXTURE_2D, texture1);
 
     //----Set the texture coordinate behavior
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_MIRRORED_REPEAT);
@@ -116,17 +117,46 @@ int main() {
     stbi_set_flip_vertically_on_load(true);
     unsigned char* data = stbi_load("incoming.jpg", &width, &height, &nrChannels, 0);
     
-    
     if (data) {
         glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
         glGenerateMipmap(GL_TEXTURE_2D);
     }
     else {
-        std::cout << "Failed to load texture" << std::endl;
+        std::cout << "Failed to load texture 1" << std::endl;
+    }
+
+
+    //--------TEXTURE 2-----------------------------------------
+    //----Create the texture object
+    glGenTextures(1, &texture2);
+
+    glBindTexture(GL_TEXTURE_2D, texture2);
+
+    //----Set the texture coordinate behavior
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+
+    //----Set texture scaling behavior
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+    data = stbi_load("comfort.PNG", &width, &height, &nrChannels, 0);
+
+    if (data) {
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
+        glGenerateMipmap(GL_TEXTURE_2D);
+    }
+    else {
+        std::cout << "Failed to load texture 2" << std::endl;
     }
 
     //----free the memory held by the image
     stbi_image_free(data);
+
+
+    practice03Shader.use();
+    glUniform1i(glGetUniformLocation(practice03Shader.ID, "texture01"), 0); //setting the texture manually
+    practice03Shader.setInt("texture02", 1); //or doing it with the shader class
 
     //----MAIN RENDER LOOP
     while (!glfwWindowShouldClose(window))
@@ -138,14 +168,19 @@ int main() {
         //----Clear the viewport
         glClear(GL_COLOR_BUFFER_BIT);
 
+        glActiveTexture(GL_TEXTURE0); //activate the texture unit first before binding
+        glBindTexture(GL_TEXTURE_2D, texture1);
+
+        glActiveTexture(GL_TEXTURE1); //activate the texture unit first before binding
+        glBindTexture(GL_TEXTURE_2D, texture2);
+       
         practice03Shader.use();
         glBindVertexArray(VAO);
-
-        glBindTexture(GL_TEXTURE_2D, texture);
-       
         glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
-        glBindVertexArray(0);
 
+
+        // glfw: swap buffers and poll IO events (keys pressed/released, mouse moved etc.)
+        // -------------------------------------------------------------------------------
         glfwSwapBuffers(window);
         glfwPollEvents();
     }

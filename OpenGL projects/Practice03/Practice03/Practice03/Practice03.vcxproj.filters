@@ -41,5 +41,11 @@
     <Image Include="incoming.jpg">
       <Filter>Resource Files</Filter>
     </Image>
+    <Image Include="white_noise.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="comfort.PNG">
+      <Filter>Resource Files</Filter>
+    </Image>
   </ItemGroup>
 </Project>

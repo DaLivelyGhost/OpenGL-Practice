@@ -155,7 +155,9 @@
     <None Include="_vertexShader.vs" />
   </ItemGroup>
   <ItemGroup>
+    <Image Include="comfort.PNG" />
     <Image Include="incoming.jpg" />
+    <Image Include="white_noise.png" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
