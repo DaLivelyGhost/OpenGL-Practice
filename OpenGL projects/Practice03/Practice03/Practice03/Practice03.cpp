@@ -1,5 +1,8 @@
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
+#include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtc/type_ptr.hpp>
 #include <iostream>
 #include "Shader.h"
 #include "stb_image.h"
@@ -158,6 +161,9 @@ int main() {
     glUniform1i(glGetUniformLocation(practice03Shader.ID, "texture01"), 0); //setting the texture manually
     practice03Shader.setInt("texture02", 1); //or doing it with the shader class
 
+
+
+
     //----MAIN RENDER LOOP
     while (!glfwWindowShouldClose(window))
     {
@@ -174,6 +180,14 @@ int main() {
         glActiveTexture(GL_TEXTURE1); //activate the texture unit first before binding
         glBindTexture(GL_TEXTURE_2D, texture2);
        
+        //----Transformation
+        glm::mat4 trans = glm::mat4(1.0f); //identity matrix
+        trans = glm::rotate(trans, cos((float)glfwGetTime()), glm::vec3(0.0f, 0.0f, 1.0f));
+        trans = glm::scale(trans, glm::vec3((sin((float)glfwGetTime()) / 2) + 1, (sin((float)glfwGetTime()) / 2) + 1, 1.0f));
+
+        unsigned int transLoc = glGetUniformLocation(practice03Shader.ID, "transform"); //get position of uniform matrix4 in vertex shader
+        glUniformMatrix4fv(transLoc, 1, GL_FALSE, glm::value_ptr(trans)); //bind the translation matrix to the uniform
+
         practice03Shader.use();
         glBindVertexArray(VAO);
         glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
