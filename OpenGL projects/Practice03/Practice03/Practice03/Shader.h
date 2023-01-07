@@ -4,6 +4,8 @@
 #define SHADER_H
 
 #include <glad/glad.h> //Include glad to get opengl headers
+#include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtc/type_ptr.hpp>
 
 #include <string>
 #include <fstream>
@@ -133,7 +135,7 @@ public:
 	{
 		glUniform1f(glGetUniformLocation(ID, name.c_str()), value);
 	}
-	
+
 };
 #endif
 

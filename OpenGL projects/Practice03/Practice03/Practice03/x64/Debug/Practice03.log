@@ -1,2 +1,3 @@
 ﻿  Practice03.cpp
+D:\OpenGL-Practice\OpenGL projects\Practice03\Practice03\Practice03\Practice03.cpp(218,28): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
   Practice03.vcxproj -> D:\OpenGL-Practice\OpenGL projects\Practice03\Practice03\x64\Debug\Practice03.exe

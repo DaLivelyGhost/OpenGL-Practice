@@ -7,8 +7,22 @@
 #include "Shader.h"
 #include "stb_image.h"
 
+//Method Declaration
+
 //----input forward declaration
 void processInput(GLFWwindow* window);
+
+//Variable Declaration
+
+//----Time
+float deltaTime = 0.0f; //I've done enough work in Unity to know what this is lol.
+float lastFrame = 0.0f;
+
+//----Camera Manipulation
+glm::vec3 cameraPos = glm::vec3(0.0f, 0.0f, 3.0f);
+glm::vec3 cameraFront = glm::vec3(0.0f, 0.0f, -1.0f);
+glm::vec3 cameraUp = glm::vec3(0.0f, 1.0f, 0.0f);
+
 
 int main() {
 
@@ -186,9 +200,25 @@ int main() {
 
     glEnable(GL_DEPTH_TEST);
 
-    //----MAIN RENDER LOOP
+
+    //----Projection matrix (initialized early on account of it not changing every frame)
+    glm::mat4 projection = glm::mat4(1.0f);
+    projection = glm::perspective(glm::radians(45.0f), 800.0f / 600.0f, 0.1f, 100.0f);
+
+    int projectionLoc = glGetUniformLocation(practice03Shader.ID, "projection");
+    glUniformMatrix4fv(projectionLoc, 1, GL_FALSE, glm::value_ptr(projection));
+
+
+
+
+    //----MAIN RENDER LOOP-----------------------------------------------------------------------
     while (!glfwWindowShouldClose(window))
     {
+        //----Calculate deltaTime
+        float currentFrame = glfwGetTime();
+        deltaTime = currentFrame - lastFrame;
+        lastFrame = currentFrame;
+        
         processInput(window);
 
         //----Define the color of the viewport when cleared
@@ -212,29 +242,33 @@ int main() {
         int modelLoc = glGetUniformLocation(practice03Shader.ID, "model");
         glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
 
-        //----View matrix
-        glm::mat4 view = glm::mat4(1.0f);
-        view = glm::rotate(view, glm::radians(20.0f), glm::vec3(1.0, 0.0, 0.0));
-        view = glm::translate(view, glm::vec3(0.0f, -2.0f, -4.0f));
+
+        //----Camera Manipulation
+
+        glm::vec3 cameraTarget = glm::vec3(0.0f, 0.0f, 0.0f);
+        glm::vec3 cameraDirection = glm::normalize(cameraPos - cameraTarget); //Subtracting a vector from another results in a vector that's the difference of the 2
+
+        glm::vec3 up = glm::vec3(0.0f, 1.0f, 0.0f);
+        glm::vec3 cameraRight = glm::normalize(glm::cross(up, cameraDirection));
+        glm::vec3 cameraUp = glm::cross(cameraDirection, cameraRight);
 
 
+        glm::mat4 view;
+
+        view = glm::lookAt(cameraPos, cameraPos + cameraFront, cameraUp);
+        
         int viewLoc = glGetUniformLocation(practice03Shader.ID, "view");
         glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(view));
 
-        //----Projection matrix
-        glm::mat4 projection = glm::mat4(1.0f);
-        projection = glm::perspective(glm::radians(45.0f), 800.0f / 600.0f, 0.1f, 100.0f);
+        ////----View matrix
+        //glm::mat4 view = glm::mat4(1.0f);
+        //view = glm::rotate(view, glm::radians(20.0f), glm::vec3(1.0, 0.0, 0.0));
+        //view = glm::translate(view, glm::vec3(0.0f, -2.0f, -4.0f));
 
-        int projectionLoc = glGetUniformLocation(practice03Shader.ID, "projection");
-        glUniformMatrix4fv(projectionLoc, 1, GL_FALSE, glm::value_ptr(projection));
 
-        //----Transformation
-        glm::mat4 trans = glm::mat4(1.0f); //identity matrix
-        trans = glm::rotate(trans, cos((float)glfwGetTime()), glm::vec3(0.0f, 0.0f, 1.0f));
-        trans = glm::scale(trans, glm::vec3((sin((float)glfwGetTime()) / 2) + 1, (sin((float)glfwGetTime()) / 2) + 1, 1.0f));
+        //int viewLoc = glGetUniformLocation(practice03Shader.ID, "view");
+        //glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(view));
 
-        unsigned int transLoc = glGetUniformLocation(practice03Shader.ID, "transform"); //get position of uniform matrix4 in vertex shader
-        glUniformMatrix4fv(transLoc, 1, GL_FALSE, glm::value_ptr(trans)); //bind the translation matrix to the uniform
 
         practice03Shader.use();
         glBindVertexArray(VAO);
@@ -263,6 +297,20 @@ void framebuffer_size_callback(GLFWwindow* window, int width, int height) {
 }
 void processInput(GLFWwindow* window)
 {
+    const float cameraSpeed = 3 * deltaTime;
+
+    if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS) {
+        cameraPos += cameraSpeed * cameraFront;
+    }
+    if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS) {
+        cameraPos -= cameraSpeed * cameraFront;
+    }
+    if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS) {
+        cameraPos -= glm::normalize(glm::cross(cameraFront, cameraUp)) * cameraSpeed;
+    }
+    if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS) {
+        cameraPos += glm::normalize(glm::cross(cameraFront, cameraUp)) * cameraSpeed;
+    }
     if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
         glfwSetWindowShouldClose(window, true);
 }
