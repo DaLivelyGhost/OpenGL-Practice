@@ -1,3 +1,9 @@
 ﻿  Practice03.cpp
-D:\OpenGL-Practice\OpenGL projects\Practice03\Practice03\Practice03\Practice03.cpp(218,28): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
+D:\OpenGL-Practice\OpenGL projects\Practice03\Practice03\Practice03\Practice03.cpp(230,28): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
+D:\OpenGL-Practice\OpenGL projects\Practice03\Practice03\Practice03\Practice03.cpp(311,17): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
+D:\OpenGL-Practice\OpenGL projects\Practice03\Practice03\Practice03\Practice03.cpp(312,17): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
+D:\OpenGL-Practice\OpenGL projects\Practice03\Practice03\Practice03\Practice03.cpp(317,19): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
+D:\OpenGL-Practice\OpenGL projects\Practice03\Practice03\Practice03\Practice03.cpp(318,19): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
+D:\OpenGL-Practice\OpenGL projects\Practice03\Practice03\Practice03\Practice03.cpp(321,13): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
+D:\OpenGL-Practice\OpenGL projects\Practice03\Practice03\Practice03\Practice03.cpp(322,13): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
   Practice03.vcxproj -> D:\OpenGL-Practice\OpenGL projects\Practice03\Practice03\x64\Debug\Practice03.exe

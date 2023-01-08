@@ -11,6 +11,7 @@
 
 //----input forward declaration
 void processInput(GLFWwindow* window);
+void mouse_callback(GLFWwindow* window, double xpos, double ypos);
 
 //Variable Declaration
 
@@ -23,6 +24,13 @@ glm::vec3 cameraPos = glm::vec3(0.0f, 0.0f, 3.0f);
 glm::vec3 cameraFront = glm::vec3(0.0f, 0.0f, -1.0f);
 glm::vec3 cameraUp = glm::vec3(0.0f, 1.0f, 0.0f);
 
+float yaw = -90.0f;
+float pitch = 0.0f;
+
+float lastX = 800;
+float lastY = 600;
+
+bool firstMouse = true;
 
 int main() {
 
@@ -33,7 +41,7 @@ int main() {
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
     //----create window object
-    GLFWwindow* window = glfwCreateWindow(800, 600, "OpenGL Practice 01", NULL, NULL);
+    GLFWwindow* window = glfwCreateWindow(1600, 1200, "OpenGL Practice 01", NULL, NULL);
     if (window == NULL)
     {
         std::cout << "Failed to create GLFW window" << std::endl;
@@ -41,6 +49,10 @@ int main() {
         return -1;
     }
     glfwMakeContextCurrent(window);
+
+    //lock the cursor to the center of the window and perform a callback on mouse movement
+    glfwSetCursorPosCallback(window, mouse_callback);
+    glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 
     //----initialize GLAD
     if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
@@ -51,7 +63,7 @@ int main() {
 
     //----Set Up the Viewport-------------------------------------------------------
         //----create the viewport. Viewport exists within the window.
-    glViewport(0, 0, 800, 600);
+    glViewport(0, 0, 1600, 1200);
 
     //----define callback function that resizes viewport when window resizes.
     void framebuffer_size_callback(GLFWwindow * window, int width, int height);
@@ -242,32 +254,11 @@ int main() {
         int modelLoc = glGetUniformLocation(practice03Shader.ID, "model");
         glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
 
-
-        //----Camera Manipulation
-
-        glm::vec3 cameraTarget = glm::vec3(0.0f, 0.0f, 0.0f);
-        glm::vec3 cameraDirection = glm::normalize(cameraPos - cameraTarget); //Subtracting a vector from another results in a vector that's the difference of the 2
-
-        glm::vec3 up = glm::vec3(0.0f, 1.0f, 0.0f);
-        glm::vec3 cameraRight = glm::normalize(glm::cross(up, cameraDirection));
-        glm::vec3 cameraUp = glm::cross(cameraDirection, cameraRight);
-
-
-        glm::mat4 view;
-
-        view = glm::lookAt(cameraPos, cameraPos + cameraFront, cameraUp);
+        //----View matrix
+        glm::mat4 view = glm::lookAt(cameraPos, cameraPos + cameraFront, cameraUp);
         
         int viewLoc = glGetUniformLocation(practice03Shader.ID, "view");
         glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(view));
-
-        ////----View matrix
-        //glm::mat4 view = glm::mat4(1.0f);
-        //view = glm::rotate(view, glm::radians(20.0f), glm::vec3(1.0, 0.0, 0.0));
-        //view = glm::translate(view, glm::vec3(0.0f, -2.0f, -4.0f));
-
-
-        //int viewLoc = glGetUniformLocation(practice03Shader.ID, "view");
-        //glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(view));
 
 
         practice03Shader.use();
@@ -313,4 +304,42 @@ void processInput(GLFWwindow* window)
     }
     if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
         glfwSetWindowShouldClose(window, true);
+}
+void mouse_callback(GLFWwindow* window, double xpos, double ypos) {
+
+    if (firstMouse) {
+        lastX = xpos;
+        lastY = ypos;
+        firstMouse = false;
+    }
+
+    //get the offset
+    float xoffset = xpos - lastX;
+    float yoffset = lastY - ypos;
+
+    //update the last position
+    lastX = xpos;
+    lastY = ypos;
+
+    //apply mouse sensitivity to the offset
+    const float sensitivity = 0.03f;
+    xoffset *= sensitivity;
+    yoffset *= sensitivity;
+
+    //update the camera pitch and yaw
+    yaw += xoffset;
+    pitch += yoffset;
+
+    //constrain pitch to within 90 and -90
+    if (pitch > 89.0f)
+        pitch = 89.0f;
+    if (pitch < -89.0f)
+        pitch = -89.0f;
+
+    glm::vec3 front;
+    front.x = cos(glm::radians(yaw)) * cos(glm::radians(pitch));
+    front.y = sin(glm::radians(pitch));
+    front.z = sin(glm::radians(yaw)) * cos(glm::radians(pitch));
+    
+    cameraFront = glm::normalize(front);
 }
