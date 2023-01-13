@@ -41,7 +41,7 @@ int main() {
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
     //----create window object
-    GLFWwindow* window = glfwCreateWindow(1600, 1200, "OpenGL Practice 01", NULL, NULL);
+    GLFWwindow* window = glfwCreateWindow(1600, 1200, "OpenGL Practice 03", NULL, NULL);
     if (window == NULL)
     {
         std::cout << "Failed to create GLFW window" << std::endl;
